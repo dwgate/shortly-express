@@ -43,7 +43,11 @@ module.exports = (db) => {
     .then(() => {
       return db.queryAsync(`
         CREATE TABLE IF NOT EXISTS sessions (
-        `);
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        hash CHAR(64),
+        user_id INT,
+        timestamp TIMESTAMP
+        );`);
     })
 
     .error(err => {
