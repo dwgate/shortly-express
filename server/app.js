@@ -4,12 +4,13 @@ const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
-const models = require('./models');
+const models = require('./models'); 
 
 const app = express();
 
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
+
 app.use(partials());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
@@ -76,9 +77,56 @@ app.post('/links',
     });
 });
 
+app.post('/signup', (req, res, next) => {
+  let username = req.body.username;
+  let password = req.body.password;
+  //check if username exists in user database
+  return models.Users.get({ username }) 
+    .then(user => {
+      if (user) {
+        throw user;
+      }
+      return models.Users.create(username, password);
+    })
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch( user => 
+      res.redirect('/signup')
+    );
+});
+
+app.post('/login', (req, res, next) => {
+  let username = req.body.username;
+  let password = req.body.password;
+
+  // check if this user is in our database
+    // if not, redirect to /login 
+  return models.Users.get({ username })
+
+    .then( rows => {
+      if ( rows === undefined ) {
+        throw 'user not found';
+      }
+      return models.Users.authenticateUser( username, password );
+
+    }).then( isAuthenticated => {
+      if ( isAuthenticated ) {
+        res.redirect( '/' );
+      } else {
+        throw 'invalid password';
+      }
+    }).error( err => {
+      console.error( err );
+      res.status(500).send(err);
+    }).catch( err => {
+      res.redirect( '/login' );
+    });
+});
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+
 
 
 
