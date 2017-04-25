@@ -4,6 +4,7 @@ const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
+const cookieParser = require('./middleware/cookieParser');//added this middleware
 const models = require('./models'); 
 
 const app = express();
@@ -19,6 +20,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from ../public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+// app.use(Auth.auth);
+app.use(cookieParser);
+//added this middleware - would assume we have to check for cookies every req.
+//need to determine how we assign cookies - thinking "timestamp" hash? - compromises security
 
 app.get('/', 
 (req, res) => {
@@ -96,6 +101,10 @@ app.post('/signup', (req, res, next) => {
     );
 });
 
+
+/************************************************************/
+// Write your authentication routes here
+/************************************************************/
 app.post('/login', (req, res, next) => {
   let username = req.body.username;
   let password = req.body.password;
@@ -123,13 +132,6 @@ app.post('/login', (req, res, next) => {
       res.redirect( '/login' );
     });
 });
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
-
-
-
-
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
