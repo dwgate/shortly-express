@@ -36,7 +36,8 @@ module.exports = (db) => {
         id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(20) NOT NULL UNIQUE,
         password CHAR(64),
-        timestamp TIMESTAMP
+        timestamp TIMESTAMP,
+        salt CHAR(64)
         );`);
     })
 
@@ -46,7 +47,8 @@ module.exports = (db) => {
         id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         hash CHAR(64),
         user_id INT,
-        timestamp TIMESTAMP
+        timestamp TIMESTAMP,
+        salt CHAR(64)
         );`);
     })
 

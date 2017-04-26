@@ -3,7 +3,7 @@ const path = require('path');
 const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
-const Auth = require('./middleware/auth');
+const auth = require('./middleware/auth');
 const cookieParser = require('./middleware/cookieParser');//added this middleware
 const models = require('./models'); 
 
@@ -20,10 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from ../public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
-// app.use(Auth.auth);
 app.use(cookieParser);
-//added this middleware - would assume we have to check for cookies every req.
-//need to determine how we assign cookies - thinking "timestamp" hash? - compromises security
+app.use(auth.createSession);
 
 app.get('/', 
 (req, res) => {
@@ -46,8 +44,7 @@ app.get('/links',
     });
 });
 
-app.post('/links', 
-(req, res, next) => {
+app.post('/links', (req, res, next) => {
   var url = req.body.url;
   if (!models.Links.isValidUrl(url)) {
     // send back a 404 if link is not valid
@@ -93,12 +90,16 @@ app.post('/signup', (req, res, next) => {
       }
       return models.Users.create(username, password);
     })
-    .then(() => {
+    .then((result) => {
       res.redirect('/');
     })
-    .catch( user => 
-      res.redirect('/signup')
-    );
+    .error( err => {
+      console.error( 'Error during signup: ', err );
+      res.status(500).send(error);
+    })
+    .catch( user => {
+      res.redirect('/signup');
+    });
 });
 
 

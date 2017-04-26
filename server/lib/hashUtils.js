@@ -5,6 +5,10 @@ const crypto = require('crypto');
 /************************************************************/
 
 
+const createSalt = function() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
 const sha256 = function(input, salt) {
   const hash256 = crypto.createHash('sha256');
   hash256.update(input + salt);
@@ -12,3 +16,5 @@ const sha256 = function(input, salt) {
 };
 
 module.exports.sha256 = sha256;
+module.exports.createSalt = createSalt;
+

@@ -1,12 +1,14 @@
+const queryString = require('querystring');
+
 const parseCookies = (req, res, next) => {
-  if (req.cookies) {
-    console.log('cookies: ', req.cookies);
-    //see if we have a session for that user
-      //if yes
+  if (req.get('Cookie')) {
+    let headerCookies = req.get('Cookie').replace(/ /g, '');
+    let cookieObj = queryString.parse(headerCookies, ';');
+    req.cookies = cookieObj;
 
-      //if no
-
+    next();
   } else {
+    req.cookies = {};
     next();
   }
 };
